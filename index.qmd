@@ -1,23 +1,29 @@
 ---
-title: "Lab 03: Depth-Damage Models"
+title: "Lab 3: Depth-Damage Models"
 subtitle: "DataFrames and Distributions"
 author: "CEVE 421/521"
 jupyter: julia-1.9
 date: 2024-01-26
-week: 03
+week: 3
 categories: [Lab]
 
 format: 
     html: default
-#    pdf:
-#        documentclass: article
-#        fontsize: 10pt
-#        geometry:
-#            - margin=1in  
-#    docx: 
-#        toc: true
-#        fig-format: png
 
+    # YOU DO NOT NEED BOTH PDF AND DOCX.
+    # COMMENT OR DELETE THE ONE YOU DON'T WANT TO USE.
+    pdf:
+        documentclass: article
+        fontsize: 11pt
+        geometry:
+            - margin=1in  
+        number-sections: true
+        code-line-numbers: true
+    docx: 
+        toc: true
+        fig-format: png
+        number-sections: true
+        code-line-numbers: true
 date-format: "ddd., MMM. D"
 ---
 
