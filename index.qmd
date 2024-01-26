@@ -2,12 +2,6 @@
 title: "Lab 3: Depth-Damage Models"
 subtitle: "DataFrames and Distributions"
 author: "CEVE 421/521"
-<<<<<<< HEAD
-jupyter: julia-1.10
-||||||| a25e397
-jupyter: julia-1.9
-=======
->>>>>>> ddae644ba564dd303f505556c558107fcb0e4a57
 date: 2024-01-26
 week: 3
 categories: [Lab]
@@ -81,7 +75,7 @@ using Plots
 using StatsPlots
 using Unitful
 
-Plots.default(margin=6Plots.mm) # <1>
+Plots.default(; margin=6Plots.mm) # <1>
 ```
 
 1. This updates the default margin in our plots so that axis labels don't get cut off.
@@ -128,7 +122,11 @@ I've also defined a `constructor` that takes in the row of a DataFrame and creat
 I'll show you how to do this for an illustrative depth-damage function from the New Orleans USACE.
 
 ```{julia}
-demo_row = @rsubset(haz_fl_dept, :Description == "one story, Contents, fresh water, short duration")[1, :]
+demo_row = @rsubset(
+    haz_fl_dept, :Description == "one story, Contents, fresh water, short duration"
+)[
+    1, :,
+]
 dd = DepthDamageData(demo_row)
 ```
 
@@ -147,7 +145,7 @@ When we plot things with units, the `Unitful` package (as long as we are `using`
 ```{julia}
 scatter(
     dd.depths,
-    dd.damages,
+    dd.damages;
     xlabel="Flood Depth at House",
     ylabel="Damage (%)",
     label="$(dd.description) ($(dd.source))",
@@ -170,7 +168,7 @@ itp = let # <1>
     Interpolations.LinearInterpolation(
         depth_ft,
         damage_frac;
-        extrapolation_bc=Interpolations.Flat() # <3>
+        extrapolation_bc=Interpolations.Flat(), # <3>
     )
 end
 ```
@@ -196,14 +194,16 @@ end
 To make life simple, we can define a function that takes in some depths and some damages and *returns a function* that can be used to estimate damage at any depth.
 
 ```{julia}
-function get_depth_damage_function(depth_train::Vector{<:T}, dmg_train::Vector{<:AbstractFloat}) where {T<:Unitful.Length}
+function get_depth_damage_function(
+    depth_train::Vector{<:T}, dmg_train::Vector{<:AbstractFloat}
+) where {T<:Unitful.Length}
 
     # interpolate
     depth_ft = ustrip.(u"ft", depth_train)
     interp_fn = Interpolations.LinearInterpolation(
         depth_ft, # <1>
         dmg_train;
-        extrapolation_bc=Interpolations.Flat() # <2>
+        extrapolation_bc=Interpolations.Flat(), # <2>
     )
 
     damage_fn = function (depth::T2) where {T2<:Unitful.Length}
@@ -228,9 +228,18 @@ We can use this to plot a depth-damage curve:
 
 ```{julia}
 p = let
-    depths = uconvert.(u"ft", -7.0u"ft":1.0u"inch":30.0u"ft") # <1>
+    depths = uconvert.(u"ft", (-7.0u"ft"):(1.0u"inch"):(30.0u"ft")) # <1>
     damages = damage_fn.(depths) # <2>
-    scatter(depths, damages, xlabel="Flood Depth", ylabel="Damage (%)", label="$(dd.description) ($(dd.source))", legend=:bottomright, size=(800, 400), linewidth=2)
+    scatter(
+        depths,
+        damages;
+        xlabel="Flood Depth",
+        ylabel="Damage (%)",
+        label="$(dd.description) ($(dd.source))",
+        legend=:bottomright,
+        size=(800, 400),
+        linewidth=2,
+    )
 end
 p
 ```
@@ -263,7 +272,14 @@ quantile.(gauge_dist, [0.5, 0.9, 0.99, 0.999])
 and we can plot it using `StatsPlots`:
 
 ```{julia}
-p1 = plot(gauge_dist, label="Gauge Distribution", xlabel="Water Level (ft)", ylabel="Probability Density", legend=:topright, linewidth=2)
+p1 = plot(
+    gauge_dist;
+    label="Gauge Distribution",
+    xlabel="Water Level (ft)",
+    ylabel="Probability Density",
+    legend=:topright,
+    linewidth=2,
+)
 ```
 
 Our building might be above the gauge.
@@ -278,7 +294,7 @@ house_dist = GeneralizedExtremeValue(gauge_dist.μ - offset, gauge_dist.σ, gaug
 We can plot this
 
 ```{julia}
-plot!(p1, house_dist, label="House Distribution", linewidth=2) # <1>
+plot!(p1, house_dist; label="House Distribution", linewidth=2) # <1>
 ```
 
 1. This adds to the existing plot
